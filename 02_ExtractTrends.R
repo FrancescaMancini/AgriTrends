@@ -327,12 +327,16 @@ occ_by_agri <- ggplot(
     ymax = upp_ci,
     fill = agri
   ),
-  alpha = 0.2) +
-  facet_wrap( ~ tax_grp) +
+  alpha = 0.2,
+  show.legend = FALSE) +
+  facet_wrap( ~ tax_grp,
+              ncol = 2,
+              scales = "free_x") +
   # colour
   scale_colour_manual(
     values = c("firebrick1", "goldenrod1", "dodgerblue"),
-    labels = c("High", "Low", "No arable")
+    labels = c("High", "Low", "No arable"),
+    name = "Coverage of\narable land"
   ) +
   scale_fill_manual(
     values = c("firebrick1", "goldenrod1", "dodgerblue"),
@@ -340,12 +344,23 @@ occ_by_agri <- ggplot(
   ) +
   # force lower limit to 0
   expand_limits(y = 0) +
-  # remove space under plotting area
-  scale_y_continuous(expand = c(0, 0)) +
   # axis labels
   labs(x = "Year", y = "Average occupancy") +
-  theme(legend.title = element_blank(),
-        text = element_text(size = 11))
+  theme_light() +
+  theme(text = element_text(size = 11),
+        axis.text.x = element_text(angle = 30, vjust = 1, hjust=1),
+        legend.position = c(0.75, 0.1) # c(0,0) bottom left, c(1,1) top-right
+        )
+
+
+# # save: trend plot
+png("/data/plots/all_taxa_trends.png", 
+    height = 16, width = 14, units = "cm", res = 320)
+
+occ_by_agri
+
+dev.off()
+
 
 ## Trend change ----
 # Here we calculate annual growth rate between the first and last year
@@ -444,7 +459,15 @@ chng_comb_avg <- chng_comb %>%
                                             credMass = 0.95)[[1]],
                    upp_ci = HDInterval::hdi(change,
                                             credMass = 0.95)[[2]])
+
+chng_comb_avg$tax_grp <- factor(chng_comb_avg$tax_grp,      # Reordering group factor levels
+                            levels = c("Bees", "Carabids", "Ladybirds", "PlantBugs",
+                                       "Spiders", "Overall"))
+
   
+chng_comb$tax_grp <- factor(chng_comb$tax_grp,      # Reordering group factor levels
+                            levels = c("Bees", "Carabids", "Ladybirds", "PlantBugs",
+                                       "Spiders", "Overall"))
 
 chng_plot <- ggplot(chng_comb, aes(x = agri, y = change, colour = agri)) +
   # zero line
@@ -463,10 +486,18 @@ chng_plot <- ggplot(chng_comb, aes(x = agri, y = change, colour = agri)) +
   # axis labels
   labs(x = "", y = "Annual growth rate") +
   facet_wrap(~tax_grp) +
+  theme_light() +
   theme(legend.position = "none",
         text = element_text(size = 11))
 
-  
+# # save: growth rate plot
+png("/data/plots/all_taxa_growth_rate.png", 
+    height = 13, width = 15, units = "cm", res = 320)
+
+chng_plot
+
+dev.off()
+
 
 ##  Species richness -----
 # Here we calculate species richness across and per year
@@ -519,10 +550,18 @@ sprich <- function(occ_df) {
                      upp_ci = HDInterval::hdi(spr,
                                               credMass = 0.95)[[2]])
   
+  spr_comb$tax_grp <- factor(spr_comb$tax_grp,      # Reordering group factor levels
+                             levels = c("Bees", "Carabids", "Ladybirds", "PlantBugs",
+                                         "Spiders", "Overall"))
+  
+  
+  spr_comb_avg$tax_grp <- factor(spr_comb_avg$tax_grp,      # Reordering group factor levels
+                              levels = c("Bees", "Carabids", "Ladybirds", "PlantBugs",
+                                         "Spiders", "Overall"))
+  
+  
   
   spr_plot <- ggplot(spr_comb, aes(x = agri, y = spr, colour = agri)) +
-    # zero line
-    # geom_hline(yintercept = 0, colour = "grey", lty = 2, lwd = 1) +
     # plot iterations
     geom_jitter(alpha = 0.2, width = 0.3) +
     # plot mean and ci
@@ -537,6 +576,17 @@ sprich <- function(occ_df) {
     # axis labels
     labs(x = "", y = "Species richness") +
     facet_wrap(~tax_grp) +
+    theme_light() +
     theme(legend.position = "none",
           text = element_text(size = 11))
+  
+  
+  # # save: species richness plot
+  png("/data/plots/all_taxa_sp_rich.png", 
+      height = 13, width = 15, units = "cm", res = 320)
+  
+  spr_plot
+  
+  dev.off()
+  
   
