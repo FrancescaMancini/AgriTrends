@@ -1,3 +1,3 @@
 # AgriTrends
 
-Comparing trends of invertebrate taxa between sites with different coverage of arable land in the UK.
+Scripts to reproduce results in Mancini et al, "Invertebrate biodiversity continues to decline in cropland".
